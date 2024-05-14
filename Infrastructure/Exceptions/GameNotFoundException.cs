@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Infrastructure.ServiceFiles.Services
+namespace Infrastructure
 {
     [Serializable]
     internal class GameNotFoundException : Exception

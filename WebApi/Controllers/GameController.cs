@@ -15,6 +15,7 @@ namespace WebApi.Controllers
         {
             _gameService = gameService;
         }
+
         [HttpGet]
         [Route("{id}")]
         public ActionResult<GameDTO> FindGameById(int id)
@@ -22,6 +23,7 @@ namespace WebApi.Controllers
             var gameDTO = _gameService.FindGameById(id);
             return gameDTO == null ? NotFound() : Ok(gameDTO);
         }
+
         [HttpGet]
         [Route("/genre/{genreId}/paged/{size}/{page}")]
         public ActionResult<PagingList<GameDTO>> GetGameByGenreIdPaged(int page, int size, int genreId)
@@ -31,14 +33,23 @@ namespace WebApi.Controllers
             var gameDTO = _gameService.FindGamesByGenreIdPaged(page, size, genreId);
             return gameDTO == null ? NotFound() : Ok(gameDTO);
         }
+
         [HttpPost]
         [Route("add")]
         public IActionResult AddGame(LinkGenerator link, NewGameDTO gameDTO)
         {
-            var  game = _gameService.AddGame(gameDTO);
-            return Created(link.GetUriByAction(HttpContext, nameof(FindGameById), null, new { id = game.Id}),
-            game);
+            try
+            {
+                var game = _gameService.AddGame(gameDTO);
+                return Created(link.GetUriByAction(HttpContext, nameof(FindGameById), null, new { id = game.Id }),
+                game);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         [HttpDelete]
         [Route("delete/{id}")]
         public IActionResult DeleteGameById(int id)
@@ -46,6 +57,5 @@ namespace WebApi.Controllers
             var deleted = _gameService.DeleteGameById(id);
             return deleted == false ? NotFound() : Ok($"Game with id {id} deleted succesfully!");
         }
-        [HttpUpdate]
     }
 }

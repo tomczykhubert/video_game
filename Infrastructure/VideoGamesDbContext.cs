@@ -15,6 +15,8 @@ namespace Infrastructure
         public DbSet<GamePlatformEntity> game_platform { get; set; }
         public DbSet<GamePublisherEntity> game_publisher { get; set; }
 
+        public VideoGamesDbContext(DbContextOptions<VideoGamesDbContext> options) : base(options) { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

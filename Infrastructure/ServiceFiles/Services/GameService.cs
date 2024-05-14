@@ -27,12 +27,27 @@ namespace Infrastructure.ServiceFiles.Services
 
         public GameDTO? FindGameById(int id)
         {
-            var entity = _context.game.AsNoTracking().Include(game => game.Genre).Include(game => game.GamesPublishers).ThenInclude(gp => gp.Publisher).Include(game => game.GamesPublishers).ThenInclude(gp => gp.GamesPlatforms).ThenInclude(gp => gp.Platform).FirstOrDefault(e => e.Id == id);
+            var entity = _context.game.AsNoTracking()
+                .Include(game => game.Genre)
+                .Include(game => game.GamesPublishers)
+                .ThenInclude(gp => gp.Publisher)
+                .Include(game => game.GamesPublishers)
+                .ThenInclude(gp => gp.GamesPlatforms)
+                .ThenInclude(gp => gp.Platform)
+                .FirstOrDefault(e => e.Id == id);
             return entity is null ? null : _mapper.Map<GameDTO>(entity);
         }
+
         public PagingList<GameDTO>? FindGamesByGenreIdPaged(int page, int size, int genreId)
         {
-            var find = _context.game.AsNoTracking().Include(game => game.Genre).Include(game => game.GamesPublishers).ThenInclude(gp => gp.Publisher).Include(game => game.GamesPublishers).ThenInclude(gp => gp.GamesPlatforms).ThenInclude(gp => gp.Platform).Where(x => x.GenreId == genreId);
+            var find = _context.game.AsNoTracking()
+                .Include(game => game.Genre)
+                .Include(game => game.GamesPublishers)
+                .ThenInclude(gp => gp.Publisher)
+                .Include(game => game.GamesPublishers)
+                .ThenInclude(gp => gp.GamesPlatforms)
+                .ThenInclude(gp => gp.Platform)
+                .Where(x => x.GenreId == genreId);
             return find.Count() == 0 ? null : PagingList<GameDTO>.Create(
                 (p, s) => find
                     .Skip((p - 1) * s)
@@ -40,30 +55,27 @@ namespace Infrastructure.ServiceFiles.Services
                     .Select(_mapper.Map<GameDTO>)
                     .ToList(), page, size, find.Count());
         }
+
         public GameEntity AddGame(NewGameDTO gameDTO)
         {
             var entity = _mapper.Map<GameEntity>(gameDTO);
-            //try
-            //{
+            try
+            {
                 var saved = _context.game.Add(entity).Entity;
-                Console.WriteLine($"{entity.Id}, {entity.GenreId}, {entity.Name}");
-
                 _context.SaveChanges();
                 return saved;
-            //}
-            //catch (DbUpdateException e)
-            //{
-            //    if (e.InnerException.Message.StartsWith("The INSERT"))
-            //    {
-            //        throw new GameNotFoundException("Genre not found. Can't save!");
-            //    }
-            //    if (e.InnerException.Message.StartsWith("Violation of"))
-            //    {
-            //        throw new GameAlreadyExist(entity.Id);
-            //    }
-            //    throw new Exception(e.Message);
-            //}
+            }
+            catch (DbUpdateException e)
+            {
+                Console.WriteLine(e.InnerException.Message);
+                if (e.InnerException.Message.StartsWith("23503"))
+                {
+                    throw new GameNotFoundException("Genre not found. Can't save!");
+                }
+                throw new Exception(e.Message);
+            }
         }
+
         public bool DeleteGameById(int id)
         {
             var find = _context.game.Where(x => x.Id == id).FirstOrDefault();

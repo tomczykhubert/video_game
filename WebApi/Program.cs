@@ -5,27 +5,33 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers().AddJsonOptions(options =>
+public partial class Program
 {
-    //options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-});
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddTransient<IGameService, GameService>();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddDbContext<VideoGamesDbContext>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddTransient<IGameService, GameService>();
+        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        builder.Services.AddDbContext<VideoGamesDbContext>();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-// Configure the HTTP request pipeline.-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+        app.UseHttpsRedirection();
+        app.MapControllers();
+        app.Run();
+    }
 }
-app.UseHttpsRedirection();
-app.MapControllers();
-app.Run();
+
+public partial class Program
+{
+}
