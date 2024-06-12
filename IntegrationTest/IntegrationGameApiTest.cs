@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Infrastructure;
 using Core.DTOs;
 using Core.Entities;
+using Core.Models;
 
 namespace IntegrationTest
 {
@@ -131,6 +132,22 @@ namespace IntegrationTest
         public async void GetShouldReturnNotFound()
         {
             var result = await _client.GetAsync("/api/game/100");
+            Assert.NotNull(result);
+            Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [Fact]
+        public async void GetByCorrectGenre()
+        {
+            var result = await _client.GetFromJsonAsync<PagingList<GameDTO>>("/genre/1/paged/1/1");
+            Assert.NotNull(result);
+            Assert.Equal("Test Genre", result.Data.FirstOrDefault().Genre);
+        }
+
+        [Fact]
+        public async void GetByWrongGenre()
+        {
+            var result = await _client.GetAsync("genre/2024/paged/1/1");
             Assert.NotNull(result);
             Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
         }

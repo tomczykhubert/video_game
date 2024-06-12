@@ -85,5 +85,43 @@ namespace Infrastructure.ServiceFiles.Services
             _context.SaveChanges();
             return true;
         }
+
+        public RegionSalesEntity AddRegionSales(NewRegionSalesDTO regionSales)
+        {
+            RegionSalesEntity saved;
+            var find = _context.region_sales
+                .Include(x => x.GamePlatform)
+                .ThenInclude(x => x.GamePublisher)
+                .Where(x => x.GamePlatform.GamePublisher.GameId == regionSales.GameId)
+                .Where(x => x.GamePlatform.PlatformId == regionSales.PlatformId)
+                .Where(x => x.RegionId == regionSales.RegionId)
+                .FirstOrDefault();
+            if (find is not null)
+            {
+                find.NumberOfSales += regionSales.Sales;
+                saved = find;
+            }
+            else
+            {
+                var gamePlatform = _context.game_platform
+                    .Include(gp => gp.GamePublisher)
+                    .Where(x => x.GamePublisher.GameId == regionSales.GameId && x.PlatformId == regionSales.PlatformId )
+                    .FirstOrDefault();
+                var regionSalesEntity = new RegionSalesEntity()
+                {
+                    GamePlatformId = gamePlatform.PlatformId,
+                    RegionId = regionSales.RegionId,
+                    NumberOfSales = regionSales.Sales
+                };
+                saved = _context.region_sales.Add(regionSalesEntity).Entity;
+            }
+            _context.SaveChanges();
+            return saved;
+        }
+        public decimal GetRegionSales(int id, int regionId, int platformId)
+        {
+            var find = _context.region_sales.Include(x => x.GamePlatform).ThenInclude(x => x.GamePublisher).Where(x => x.GamePlatform.GamePublisher.GameId == id).Where(x => x.GamePlatform.PlatformId == platformId).Where(x => x.RegionId == regionId).FirstOrDefault();
+            return find.NumberOfSales;
+        }
     }
 }

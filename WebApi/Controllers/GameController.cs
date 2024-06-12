@@ -3,6 +3,7 @@ using Core.Models;
 using Infrastructure;
 using Infrastructure.ServiceFiles.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 
 namespace WebApi.Controllers
 {
@@ -56,6 +57,27 @@ namespace WebApi.Controllers
         {
             var deleted = _gameService.DeleteGameById(id);
             return deleted == false ? NotFound() : Ok($"Game with id {id} deleted succesfully!");
+        }
+        [HttpPost]
+        [Route("regionsales")]
+        public IActionResult AddRegionSales(LinkGenerator link, NewRegionSalesDTO newRegionSalesDTO)
+        {
+            try
+            {
+                var added = _gameService.AddRegionSales(newRegionSalesDTO);
+                return Created(link.GetUriByAction(HttpContext, nameof(AddRegionSales), null, new { id = added.NumberOfSales }), added);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("regionsales/{id}")]
+        public IActionResult GetRegionSales(int id, int platformId, int regionId)
+        {
+            var numberofsales = _gameService.GetRegionSales(id, platformId, regionId);
+            return Ok(numberofsales);
         }
     }
 }

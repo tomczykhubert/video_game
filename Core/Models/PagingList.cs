@@ -16,7 +16,7 @@ namespace Core.Models
 
         public bool IsPrevious { get; }
         public bool IsNext { get; }
-
+        public PagingList() { }
         private PagingList(IEnumerable<T> data, int page, int size, int totalItems)
         {
             Data = data;

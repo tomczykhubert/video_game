@@ -16,5 +16,7 @@ namespace Infrastructure.ServiceFiles.Interfaces
         PagingList<GameDTO>? FindGamesByGenreIdPaged(int page, int size, int genreId);
         GameEntity AddGame(NewGameDTO gameDTO);
         bool DeleteGameById(int id);
+        RegionSalesEntity AddRegionSales(NewRegionSalesDTO regionSales);
+        decimal GetRegionSales(int id, int platformId, int regionId);
     }
 }
